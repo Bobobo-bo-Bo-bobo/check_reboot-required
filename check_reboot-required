@@ -1,0 +1,101 @@
+#!/bin/bash
+OK=0
+WARNING=1
+CRITICAL=2
+UNKNOWN=3
+
+warn_only="false"
+
+which lsb_release 2>/dev/null >/dev/null
+if [ $? -ne 0 ]; then
+    echo "lsb_release is missing"
+    exit ${UNKNOWN}
+fi
+
+case $1 in
+    -w|--warn)
+        warn_only="true"
+        ;;
+    -h|--help)
+        echo "Usage: $0 [-w|--warn] [-h|--help]"
+        echo ""
+        echo " -h       This text"
+        echo " --help"
+        echo ""
+        echo " -w       Report warning (instead of a critical) condition if reboot is required"
+        echo " --warn"
+        echo ""
+        exit 0
+        ;;
+esac
+
+function check_debian() {
+    if [ -s /var/run/reboot-required ]; then
+
+	if [ -s /var/run/reboot-required.pkgs ]; then
+	    packages=$(xargs < /var/run/reboot-required.pkgs)
+	else
+	    packages=""
+	fi
+
+	if [ -z "${packages}" ]; then
+	    if [ "${warn_only}" == "true" ]; then
+		echo "System reboot is required"
+		exit ${WARNING}
+	    else
+		echo "System reboot is required"
+		exit ${CRITICAL}
+	    fi
+	else
+	    if [ "${warn_only}" == "true" ]; then
+		echo "System reboot is required by: ${packages}"
+		exit ${WARNING}
+	    else
+		echo "System reboot is required by: ${packages}"
+		exit ${CRITICAL}
+	    fi
+	fi
+    else
+	echo "No reboot required"
+	exit ${OK}
+    fi
+}
+
+function check_redhat() {
+    major=$(lsb_release -rs | cut -d '.' -f 1)
+
+    if [ ${major} -lt 7 ]; then
+	echo "Operating system not supported"
+	exit ${UNKNOWN}
+    fi
+
+    output=$(needs-restarting -r | xargs)
+    if [ $? -eq 0 ]; then
+	echo "${output}"
+	exit ${OK}
+    elif [ $? -eq 1 ]; then
+	echo "${output}"
+	if [ "${warn_only}" == "true" ]; then
+	    exit ${WARNING}
+	else
+	    exit ${CRITICAL}
+	fi
+    fi
+}
+
+distro=$(lsb_release -is)
+case "${distro}" in
+    Debian)
+	check_debian
+	;;
+    CentOS)
+	check_redhat
+	;;
+    *)
+	echo "Unsupported distribution ${distro}"
+	exit ${UNKNOWN}
+	;;
+esac
+
+# Never reached
+exit ${UNKNOWN}
