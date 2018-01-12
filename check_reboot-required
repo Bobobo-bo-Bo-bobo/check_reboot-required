@@ -1,4 +1,7 @@
 #!/bin/bash
+
+version="1.0.0"
+
 OK=0
 WARNING=1
 CRITICAL=2
@@ -12,19 +15,31 @@ if [ $? -ne 0 ]; then
     exit ${UNKNOWN}
 fi
 
+function usage() {
+    echo "check_reboot-required ${version}"
+    echo ""
+    echo "Copyright (C) by Andreas Maus <maus@ypbind.de>"
+    echo "This program comes with ABSOLUTELY NO WARRANTY."
+    echo ""
+    echo "check_reboot-required is distributed under the terms of the GNU General"
+    echo "Public License Version 3. (http://www.gnu.org/copyleft/gpl.html)"
+    echo ""
+    echo "Usage: $0 [-w|--warn] [-h|--help]"
+    echo ""
+    echo " -h       This text"
+    echo " --help"
+    echo ""
+    echo " -w       Report warning (instead of a critical) condition if reboot is required"
+    echo " --warn"
+    echo ""
+}
+
 case $1 in
     -w|--warn)
         warn_only="true"
         ;;
     -h|--help)
-        echo "Usage: $0 [-w|--warn] [-h|--help]"
-        echo ""
-        echo " -h       This text"
-        echo " --help"
-        echo ""
-        echo " -w       Report warning (instead of a critical) condition if reboot is required"
-        echo " --warn"
-        echo ""
+	usage
         exit 0
         ;;
 esac
