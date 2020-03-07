@@ -1,3 +1,7 @@
+**_Note:_** Because I'm running my own servers for serveral years, main development is done at at https://git.ypbind.de/cgit/check_reboot-required/
+
+----
+
 Nagios check to determine if reboot is required
 ===============================================
 
