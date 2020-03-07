@@ -1,7 +1,6 @@
-**__Note__**: Because I'm running my own servers for serveral years, all data and repositories are hosted there
-at <https://git.ypbind.de/cgit/check_reboot-required/about/>
+**_Note:_** Because I'm running my own servers for serveral years, main development is done at at https://git.ypbind.de/cgit/check_reboot-required/
 
----
+----
 
 Nagios check to determine if reboot is required
 ===============================================
